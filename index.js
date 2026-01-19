@@ -1,0 +1,1 @@
+// Entry point consolidated in index.tsx to avoid native module JSX errors.
