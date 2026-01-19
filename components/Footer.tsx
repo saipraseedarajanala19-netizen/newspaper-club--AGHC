@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Twitter, Linkedin, Facebook, Send, GraduationCap } from 'lucide-react';
-import { useApp } from '../context/AppContext';
+import { useApp } from '../context/AppContext.tsx';
 
 const Footer: React.FC = () => {
   const { settings, subscribe } = useApp();

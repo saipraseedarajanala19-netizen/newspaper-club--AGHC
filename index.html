@@ -12,29 +12,27 @@
         const originalWarn = console.warn;
         console.warn = function(...args) {
           if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com should not be used in production')) {
-            return; // Silence this specific warning
+            return; 
           }
           originalWarn.apply(console, args);
         };
       })();
     </script>
 
-    <!-- 2. Robust Favicon to prevent favicon.ico 404 errors -->
+    <!-- 2. Robust Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📰</text></svg>">
-    <link rel="shortcut icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📰</text></svg>">
-
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     
+    <!-- 3. Add Babel for browser-side TSX transpilation (Critical for static hosting) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
     <style>
-      body {
-        font-family: 'Inter', sans-serif;
-      }
-      h1, h2, h3, .serif {
-        font-family: 'Playfair Display', serif;
-      }
+      body { font-family: 'Inter', sans-serif; }
+      h1, h2, h3, .serif { font-family: 'Playfair Display', serif; }
       [p-cloak] { display: none; }
     </style>
 
@@ -51,8 +49,13 @@
     }
     </script>
     
-    <!-- 3. Entry point for the React application -->
-    <script type="module" src="./index.tsx"></script>
+    <!-- 4. Entry point configured for Babel transpilation -->
+    <script 
+      type="text/babel" 
+      data-type="module" 
+      data-presets="react,typescript" 
+      src="./index.tsx"
+    ></script>
   </head>
   <body class="bg-gray-50 text-slate-900">
     <div id="root"></div>

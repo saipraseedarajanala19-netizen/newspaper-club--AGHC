@@ -1,17 +1,17 @@
 
 import React from 'react';
 import { HashRouter as Router, Routes, Route, Link, useLocation, Navigate, Outlet } from 'react-router-dom';
-import { AppProvider, useApp } from './context/AppContext';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import Home from './pages/Home';
-import PostDetail from './pages/PostDetail';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminPosts from './pages/admin/AdminPosts';
-import PostEditor from './pages/admin/PostEditor';
-import Settings from './pages/admin/Settings';
-import Newsletter from './pages/admin/Newsletter';
-import Login from './pages/admin/Login';
+import { AppProvider, useApp } from './context/AppContext.tsx';
+import Navbar from './components/Navbar.tsx';
+import Footer from './components/Footer.tsx';
+import Home from './pages/Home.tsx';
+import PostDetail from './pages/PostDetail.tsx';
+import AdminDashboard from './pages/admin/AdminDashboard.tsx';
+import AdminPosts from './pages/admin/AdminPosts.tsx';
+import PostEditor from './pages/admin/PostEditor.tsx';
+import Settings from './pages/admin/Settings.tsx';
+import Newsletter from './pages/admin/Newsletter.tsx';
+import Login from './pages/admin/Login.tsx';
 import { LayoutDashboard, FileText, Settings as SettingsIcon, Mail, ExternalLink, LogOut } from 'lucide-react';
 
 const PublicLayout: React.FC = () => {
