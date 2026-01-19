@@ -6,16 +6,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NEWSPAPER CLUB -AGHC</title>
 
-    <!-- 1. Suppress specific Tailwind CDN production warning -->
+    <!-- 1. Suppress specific production warnings for Babel and Tailwind -->
     <script>
       (function() {
-        const originalWarn = console.warn;
-        console.warn = function(...args) {
-          if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com should not be used in production')) {
-            return; 
+        const muteStrings = [
+          'cdn.tailwindcss.com should not be used in production',
+          'You are using the in-browser Babel transformer',
+          'Note: This is a production-only notice'
+        ];
+        
+        const wrap = (original) => function(...args) {
+          if (args[0] && typeof args[0] === 'string' && muteStrings.some(s => args[0].includes(s))) {
+            return;
           }
-          originalWarn.apply(console, args);
+          original.apply(console, args);
         };
+
+        console.warn = wrap(console.warn);
+        console.info = wrap(console.info);
+        console.log = wrap(console.log);
       })();
     </script>
 
@@ -27,13 +36,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     
-    <!-- 3. Add Babel for browser-side TSX transpilation (Critical for static hosting) -->
+    <!-- 3. Add Babel for browser-side TSX transpilation -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
       body { font-family: 'Inter', sans-serif; }
       h1, h2, h3, .serif { font-family: 'Playfair Display', serif; }
       [p-cloak] { display: none; }
+      #fallback-ui { display: none; }
     </style>
 
     <script type="importmap">
@@ -58,6 +68,33 @@
     ></script>
   </head>
   <body class="bg-gray-50 text-slate-900">
-    <div id="root"></div>
+    <div id="root">
+      <!-- Loading state while Babel transpiles -->
+      <div id="loader" class="min-h-screen flex items-center justify-center bg-white">
+        <div class="text-center">
+          <span class="text-4xl animate-bounce inline-block mb-4">📰</span>
+          <p class="text-slate-400 font-medium animate-pulse">Loading Newspaper Club...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Watchdog to alert user if the app fails to mount (e.g. MIME errors) -->
+    <div id="fallback-ui" class="fixed inset-0 z-[9999] bg-white flex items-center justify-center p-6 text-center">
+      <div class="max-w-md">
+        <h2 class="text-2xl font-bold mb-4">Connection Issues</h2>
+        <p class="text-slate-600 mb-6">The application is having trouble loading. This is often caused by cache issues or server MIME-type settings on GitHub Pages.</p>
+        <button onclick="window.location.reload(true)" class="px-6 py-2 bg-blue-600 text-white rounded-lg font-bold">Try Force Reload</button>
+      </div>
+    </div>
+
+    <script>
+      // If the loader is still present after 6 seconds, show the fallback UI
+      setTimeout(() => {
+        const loader = document.getElementById('loader');
+        if (loader) {
+          document.getElementById('fallback-ui').style.display = 'flex';
+        }
+      }, 6000);
+    </script>
   </body>
 </html>
