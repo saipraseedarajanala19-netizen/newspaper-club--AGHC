@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom/client';
 import { 
@@ -27,10 +26,9 @@ import {
   Tooltip, 
   ResponsiveContainer 
 } from 'recharts';
-// Always use import {GoogleGenAI} from "@google/genai";
 import { GoogleGenAI, Type } from '@google/genai';
 
-// --- Constants & Types ---
+// --- INITIAL DATA ---
 const INITIAL_CATEGORIES = [
   { id: '1', name: 'Science', slug: 'science' },
   { id: '2', name: 'Humanities', slug: 'humanities' },
@@ -41,10 +39,10 @@ const INITIAL_CATEGORIES = [
 const INITIAL_POSTS = [
   {
     id: '1',
-    title: 'Quantum Frontiers in Higher Education',
-    slug: 'quantum-frontiers',
-    content: '<h2>A New Academic Dimension</h2><p>Quantum computing is transitioning from purely theoretical physics into an applied disciplinary force across global universities.</p><p>We are seeing an unprecedented level of integration between traditional computer science and the quantum realm.</p>',
-    summary: 'Exploring how quantum shifts are redefining the landscape of collegiate research and technology departments.',
+    title: 'The Quantum Shift in Collegiate Research',
+    slug: 'quantum-shift',
+    content: '<h2>A New Academic Dimension</h2><p>Quantum computing is transitioning from purely theoretical physics into an applied disciplinary force across global universities. We are seeing an unprecedented level of integration between traditional computer science and the quantum realm.</p><p>As laboratories scale their hardware capabilities, students are now tasked with rethinking algorithmic complexity from the ground up.</p>',
+    summary: 'Exploring how quantum computing is redefining the landscape of collegiate research and technology departments.',
     author: 'Dr. Sarah Mitchell',
     category: 'Technology',
     tags: ['Quantum', 'Future', 'Academia'],
@@ -57,7 +55,7 @@ const INITIAL_POSTS = [
     id: '2',
     title: 'The Renaissance of Campus Journalism',
     slug: 'campus-journalism',
-    content: '<h2>Truth in Education</h2><p>Student-led reporting is seeing a resurgence in the digital age, with blogs replacing traditional newsletters.</p>',
+    content: '<h2>Truth in Education</h2><p>Student-led reporting is seeing a resurgence in the digital age, with blogs replacing traditional newsletters. The speed of information sharing on campus has transformed how institutional culture is recorded.</p>',
     summary: 'How modern platforms are empowering students to become the primary voices of their institutional culture.',
     author: 'James Wilson',
     category: 'Humanities',
@@ -76,10 +74,9 @@ const INITIAL_SETTINGS = {
   logo: '📰',
 };
 
-// --- Context ---
+// --- APP CONTEXT ---
 const AppContext = createContext<any>(null);
 
-// Fix for children missing error by explicitly using React.FC which often resolves subtle TS errors with children in certain environments
 const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [posts, setPosts] = useState(() => {
     const saved = localStorage.getItem('ckc_posts');
@@ -139,33 +136,36 @@ const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 const useApp = () => useContext(AppContext);
 
-// --- Shared Components ---
+// --- SHARED COMPONENTS ---
 const Navbar = () => {
   const { settings, auth } = useApp();
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
   return (
-    <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
+    <nav className="bg-white/80 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
-          <Link to="/" className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-3">
             <span className="text-2xl">{settings.logo}</span>
-            <span className="text-xl font-bold text-slate-900 serif">{settings.siteTitle}</span>
+            <span className="text-xl font-bold text-slate-900 serif tracking-tight">{settings.siteTitle}</span>
           </Link>
-          <div className="hidden md:flex items-center space-x-8">
-            <Link to="/" className={`text-sm font-medium ${location.pathname === '/' ? 'text-blue-600' : 'text-slate-600 hover:text-blue-600'}`}>Feed</Link>
-            <Link to="/about" className="text-sm font-medium text-slate-600 hover:text-blue-600">Archives</Link>
-            <Link to={auth.isAuthenticated ? "/admin" : "/login"} className="p-2 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200"><User className="w-5 h-5" /></Link>
+          <div className="hidden md:flex items-center space-x-10">
+            <Link to="/" className={`text-sm font-semibold tracking-tight transition-colors ${location.pathname === '/' ? 'text-blue-600' : 'text-slate-500 hover:text-blue-600'}`}>Feed</Link>
+            <Link to="/about" className={`text-sm font-semibold tracking-tight transition-colors ${location.pathname === '/about' ? 'text-blue-600' : 'text-slate-500 hover:text-blue-600'}`}>Archives</Link>
+            <Link to={auth.isAuthenticated ? "/admin" : "/login"} className="flex items-center space-x-2 text-slate-500 hover:text-blue-600 transition-colors">
+              <User className="w-5 h-5" />
+              <span className="text-sm font-semibold">{auth.isAuthenticated ? 'Console' : 'Login'}</span>
+            </Link>
           </div>
-          <button onClick={() => setIsOpen(!isOpen)} className="md:hidden text-slate-600"><Menu /></button>
+          <button onClick={() => setIsOpen(!isOpen)} className="md:hidden text-slate-600 p-2"><Menu /></button>
         </div>
       </div>
       {isOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100 p-4 space-y-4 shadow-lg animate-in fade-in slide-in-from-top-4">
-          <Link to="/" onClick={() => setIsOpen(false)} className="block font-medium">Feed</Link>
-          <Link to="/about" onClick={() => setIsOpen(false)} className="block font-medium">Archives</Link>
-          <Link to="/login" onClick={() => setIsOpen(false)} className="block font-medium">Login</Link>
+        <div className="md:hidden bg-white border-t border-slate-100 p-6 space-y-4 shadow-xl animate-in slide-in-from-top-2">
+          <Link to="/" onClick={() => setIsOpen(false)} className="block font-bold text-slate-800">Feed</Link>
+          <Link to="/about" onClick={() => setIsOpen(false)} className="block font-bold text-slate-800">Archives</Link>
+          <Link to="/login" onClick={() => setIsOpen(false)} className="block font-bold text-slate-800">Admin Portal</Link>
         </div>
       )}
     </nav>
@@ -183,45 +183,46 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-slate-900 text-slate-300 pt-16 pb-8">
+    <footer className="bg-[#0a0f1c] text-slate-400 pt-20 pb-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-          <div className="col-span-2">
-            <div className="flex items-center space-x-2 text-white mb-6">
-              <span className="text-2xl">{settings.logo}</span>
-              <span className="text-xl font-bold serif">{settings.siteTitle}</span>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-16 mb-16">
+          <div className="col-span-1 md:col-span-2">
+            <div className="flex items-center space-x-3 text-white mb-8">
+              <span className="text-3xl">{settings.logo}</span>
+              <span className="text-2xl font-bold serif tracking-tight">{settings.siteTitle}</span>
             </div>
-            <p className="max-w-sm text-slate-400 leading-relaxed">{settings.description}</p>
+            <p className="max-w-md text-slate-400 leading-relaxed text-lg font-light">{settings.description}</p>
           </div>
           <div>
-            <h4 className="text-white font-bold mb-6">Explore</h4>
-            <ul className="space-y-3 text-sm">
-              <li><Link to="/" className="hover:text-white transition-colors">Latest Feed</Link></li>
-              <li><Link to="/about" className="hover:text-white transition-colors">About the Club</Link></li>
-              <li><Link to="/login" className="hover:text-white transition-colors">Admin Portal</Link></li>
+            <h4 className="text-white font-bold mb-8 uppercase tracking-widest text-xs">Knowledge Base</h4>
+            <ul className="space-y-4 text-sm font-medium">
+              <li><Link to="/" className="hover:text-white transition-colors">Latest Bulletins</Link></li>
+              <li><Link to="/about" className="hover:text-white transition-colors">Club Constitution</Link></li>
+              <li><Link to="/login" className="hover:text-white transition-colors">Admin Hub</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="text-white font-bold mb-6">Newsletter</h4>
+            <h4 className="text-white font-bold mb-8 uppercase tracking-widest text-xs">Club Circular</h4>
+            <p className="text-xs mb-6 text-slate-500 font-medium">Weekly insights delivered to your inbox.</p>
             <form onSubmit={handleSubmit} className="flex gap-2">
               <input 
                 type="email" 
                 value={email} 
                 onChange={e => setEmail(e.target.value)} 
-                placeholder="Email address" 
-                className="bg-slate-800 border-none rounded-lg px-4 py-2 text-sm text-white flex-grow outline-none focus:ring-2 focus:ring-blue-500" 
+                placeholder="university@email.edu" 
+                className="bg-slate-900 border-none rounded-xl px-5 py-3 text-sm text-white flex-grow outline-none focus:ring-2 focus:ring-blue-600 transition-all" 
                 required 
               />
-              <button className="bg-blue-600 p-2 rounded-lg text-white hover:bg-blue-700 transition-colors"><Send className="w-4 h-4" /></button>
+              <button className="bg-blue-600 p-3 rounded-xl text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-900/20"><Send className="w-4 h-4" /></button>
             </form>
-            {done && <p className="text-emerald-400 text-xs mt-2 animate-pulse">Successfully subscribed!</p>}
+            {done && <p className="text-emerald-400 text-xs mt-3 font-bold animate-pulse">Enrolled in Circular!</p>}
           </div>
         </div>
-        <div className="border-t border-slate-800 pt-8 text-xs text-slate-500 flex justify-between">
-          <span>© 2024 AGHC Newspaper Club. All rights reserved.</span>
-          <div className="flex space-x-4">
-            <a href="#" className="hover:text-white"><Twitter className="w-4 h-4" /></a>
-            <a href="#" className="hover:text-white"><Linkedin className="w-4 h-4" /></a>
+        <div className="border-t border-slate-800/50 pt-10 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600 flex flex-col md:flex-row justify-between items-center gap-4">
+          <span>© 2024 AGHC Newspaper Club Archives</span>
+          <div className="flex space-x-8">
+            <a href="#" className="hover:text-white transition-colors">Privacy Protocols</a>
+            <a href="#" className="hover:text-white transition-colors">Terms of Publication</a>
           </div>
         </div>
       </div>
@@ -229,39 +230,39 @@ const Footer = () => {
   );
 };
 
-// --- Pages ---
+// --- PUBLIC PAGES ---
 const Home = () => {
   const { posts } = useApp();
   const featured = posts.find((p: any) => p.featured && p.status === 'published') || posts[0];
   const others = posts.filter((p: any) => p.status === 'published' && p.id !== featured?.id);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       {featured && (
-        <Link to={`/post/${featured.slug}`} className="block relative h-[500px] rounded-[2.5rem] overflow-hidden mb-16 group shadow-2xl">
-          <img src={featured.image} className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-[2s] ease-out" />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent" />
-          <div className="absolute bottom-12 left-12 right-12 max-w-3xl">
-            <span className="bg-blue-600 text-white text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest mb-6 inline-block shadow-lg">Featured Research</span>
-            <h1 className="text-4xl md:text-6xl text-white font-bold serif mb-6 leading-tight group-hover:underline underline-offset-8 decoration-2">{featured.title}</h1>
-            <p className="text-slate-200 text-lg line-clamp-2 font-light opacity-90">{featured.summary}</p>
+        <Link to={`/post/${featured.slug}`} className="block relative h-[550px] rounded-[3rem] overflow-hidden mb-20 group shadow-2xl">
+          <img src={featured.image} className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-[3s] ease-out" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f1c] via-[#0a0f1c]/20 to-transparent" />
+          <div className="absolute bottom-16 left-16 right-16 max-w-3xl">
+            <span className="bg-blue-600 text-white text-[10px] font-black px-5 py-2 rounded-full uppercase tracking-[0.2em] mb-8 inline-block shadow-xl">Cover Story</span>
+            <h1 className="text-5xl md:text-7xl text-white font-bold serif mb-8 leading-[1.1] tracking-tight group-hover:underline decoration-2 underline-offset-[12px]">{featured.title}</h1>
+            <p className="text-slate-200 text-xl line-clamp-2 font-light opacity-90 leading-relaxed">{featured.summary}</p>
           </div>
         </Link>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16">
         {others.map((post: any) => (
-          <Link key={post.id} to={`/post/${post.slug}`} className="group flex flex-col h-full">
-            <div className="aspect-[4/3] rounded-3xl overflow-hidden mb-6 shadow-sm border border-gray-100">
-              <img src={post.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+          <Link key={post.id} to={`/post/${post.slug}`} className="group flex flex-col">
+            <div className="aspect-[4/3] rounded-[2.5rem] overflow-hidden mb-8 shadow-md ring-1 ring-slate-100">
+              <img src={post.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
             </div>
             <div className="flex-grow">
-              <span className="text-blue-600 text-[10px] font-bold uppercase tracking-widest mb-3 block">{post.category}</span>
-              <h3 className="text-2xl font-bold serif group-hover:text-blue-600 transition-colors mb-4 leading-snug">{post.title}</h3>
-              <p className="text-slate-500 text-sm font-light line-clamp-2 leading-relaxed mb-6">{post.summary}</p>
+              <span className="text-blue-600 text-[10px] font-black uppercase tracking-[0.2em] mb-4 block">{post.category}</span>
+              <h3 className="text-3xl font-bold serif group-hover:text-blue-600 transition-colors mb-5 leading-tight tracking-tight">{post.title}</h3>
+              <p className="text-slate-500 text-base font-light line-clamp-3 leading-relaxed mb-8">{post.summary}</p>
             </div>
-            <div className="flex items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider pb-2 border-b border-transparent group-hover:border-blue-100">
-              {post.author} • {new Date(post.date).toLocaleDateString()}
+            <div className="flex items-center text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] pt-6 border-t border-slate-50">
+              {post.author} <span className="mx-3 opacity-30">•</span> {new Date(post.date).toLocaleDateString()}
             </div>
           </Link>
         ))}
@@ -278,36 +279,37 @@ const PostDetail = () => {
   if (!post) return <Navigate to="/" />;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-16">
-      <Link to="/" className="inline-flex items-center text-sm text-slate-400 hover:text-blue-600 mb-12 transition-all hover:-translate-x-1">
-        <ChevronLeft className="w-4 h-4 mr-1" /> Return to feed
+    <div className="max-w-4xl mx-auto px-4 py-20">
+      <Link to="/" className="inline-flex items-center text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-blue-600 mb-16 transition-all hover:-translate-x-2">
+        <ChevronLeft className="w-4 h-4 mr-2" /> Back to Feed
       </Link>
-      <header className="mb-16">
-        <span className="text-blue-600 text-xs font-bold uppercase tracking-widest mb-6 block">{post.category}</span>
-        <h1 className="text-5xl md:text-6xl font-bold serif leading-tight mb-10 tracking-tight">{post.title}</h1>
-        <div className="flex items-center justify-between py-8 border-y border-gray-100">
-          <div className="flex items-center space-x-4">
-            <img src={`https://ui-avatars.com/api/?name=${post.author}&background=random&color=fff`} className="w-12 h-12 rounded-full ring-2 ring-slate-100" />
+      <header className="mb-20">
+        <span className="text-blue-600 text-[10px] font-black uppercase tracking-[0.25em] mb-6 block">{post.category}</span>
+        <h1 className="text-6xl md:text-7xl font-bold serif leading-[1.05] mb-12 tracking-tight text-slate-900">{post.title}</h1>
+        <div className="flex items-center justify-between py-10 border-y border-slate-100">
+          <div className="flex items-center space-x-5">
+            <img src={`https://ui-avatars.com/api/?name=${post.author}&background=random&color=fff&size=128`} className="w-14 h-14 rounded-full ring-4 ring-slate-50" />
             <div>
-              <p className="font-bold text-slate-900">{post.author}</p>
-              <p className="text-xs text-slate-400 font-medium">{new Date(post.date).toLocaleDateString()} • 8 min read</p>
+              <p className="font-bold text-slate-900 text-lg tracking-tight">{post.author}</p>
+              <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">{new Date(post.date).toLocaleDateString()} <span className="mx-2">•</span> 10 Min Read</p>
             </div>
           </div>
-          <div className="flex space-x-3">
-             <button className="p-2.5 bg-slate-50 text-slate-400 hover:bg-blue-50 hover:text-blue-600 rounded-full transition-all"><Twitter className="w-5 h-5" /></button>
-             <button className="p-2.5 bg-slate-50 text-slate-400 hover:bg-slate-900 hover:text-white rounded-full transition-all"><Share2 className="w-5 h-5" /></button>
+          <div className="flex space-x-4">
+             <button className="p-3 bg-slate-50 text-slate-400 hover:bg-blue-50 hover:text-blue-600 rounded-2xl transition-all"><Twitter className="w-5 h-5" /></button>
+             <button className="p-3 bg-slate-50 text-slate-400 hover:bg-slate-900 hover:text-white rounded-2xl transition-all"><Share2 className="w-5 h-5" /></button>
           </div>
         </div>
       </header>
-      <img src={post.image} className="w-full rounded-[3rem] shadow-2xl mb-16 ring-1 ring-slate-200" />
-      <article className="prose prose-slate prose-lg max-w-none text-slate-700 font-light leading-relaxed mb-20" dangerouslySetInnerHTML={{ __html: post.content }} />
+      <img src={post.image} className="w-full rounded-[3.5rem] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] mb-20" />
+      <article className="prose prose-slate prose-xl max-w-none mb-32" dangerouslySetInnerHTML={{ __html: post.content }} />
       
-      <div className="bg-slate-50 rounded-[2.5rem] p-12 border border-slate-100 flex flex-col md:flex-row items-center gap-8">
-        <img src={`https://ui-avatars.com/api/?name=${post.author}&size=128`} className="w-24 h-24 rounded-full" />
+      <div className="bg-slate-900 rounded-[3rem] p-16 text-white flex flex-col md:flex-row items-center gap-10">
+        <img src={`https://ui-avatars.com/api/?name=${post.author}&size=256`} className="w-32 h-32 rounded-[2rem] shadow-2xl" />
         <div className="text-center md:text-left">
-          <h3 className="text-xl font-bold mb-2">About {post.author}</h3>
-          <p className="text-slate-500 text-sm leading-relaxed max-w-xl">
-            Frequent contributor to the AGHC Newspaper Club. Specializing in multidisciplinary academic studies and institutional research.
+          <span className="text-blue-400 text-[10px] font-black uppercase tracking-[0.2em] mb-4 block">About the Contributor</span>
+          <h3 className="text-3xl font-bold serif mb-4">{post.author}</h3>
+          <p className="text-slate-400 text-lg leading-relaxed font-light max-w-xl">
+            A lead contributor at the AGHC Newspaper Club. Specializing in advanced collegiate research and socio-technical implications of new media.
           </p>
         </div>
       </div>
@@ -315,7 +317,7 @@ const PostDetail = () => {
   );
 };
 
-// --- Admin Pages ---
+// --- ADMIN PAGES ---
 const PostEditor = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -336,16 +338,15 @@ const PostEditor = () => {
   }, [id, posts]);
 
   const generateWithAi = async () => {
-    if (!form.content || form.content.length < 50) return alert('Draft at least 50 characters of content first!');
+    if (!form.content || form.content.length < 50) return alert('Draft the core article first.');
     setIsAiLoading(true);
     try {
-      // Create new GoogleGenAI instance with named parameters and direct process.env.API_KEY
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const resp = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
-        contents: `Analyze this article and provide a 1-sentence academic summary and 3 relevant tags.
+        contents: `Review this manuscript and provide a concise abstract (1 sentence) and 3 research tags.
                   Title: ${form.title}
-                  Article Body: ${form.content.substring(0, 2000)}`,
+                  Content: ${form.content.substring(0, 2500)}`,
         config: { 
           responseMimeType: "application/json",
           responseSchema: { 
@@ -358,19 +359,17 @@ const PostEditor = () => {
           }
         }
       });
-      // Extract response text property directly
       const res = JSON.parse(resp.text);
       setForm(prev => ({ ...prev, summary: res.summary, tags: res.tags }));
     } catch (e) { 
-      console.error(e);
-      alert('AI Assistant is currently unavailable.'); 
+      alert('AI Core busy.'); 
     } finally { 
       setIsAiLoading(false); 
     }
   };
 
   const save = () => {
-    if (!form.title) return alert('Title is required');
+    if (!form.title) return alert('Title required');
     const slug = form.title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]/g, '');
     if (id) updatePost(id, { ...form, slug });
     else addPost({ ...form, id: Date.now().toString(), date: new Date().toISOString(), slug });
@@ -378,69 +377,69 @@ const PostEditor = () => {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-700">
       <div className="flex justify-between items-center">
-        <div className="flex items-center space-x-4">
-          <Link to="/admin/posts" className="p-2 text-slate-400 hover:text-slate-900 hover:bg-white rounded-xl transition-all"><ChevronLeft /></Link>
-          <h1 className="text-3xl font-bold serif">{id ? 'Refine Thesis' : 'Draft New Insight'}</h1>
+        <div className="flex items-center space-x-6">
+          <Link to="/admin/posts" className="p-3 text-slate-400 hover:text-slate-900 bg-white rounded-2xl shadow-sm"><ChevronLeft /></Link>
+          <h1 className="text-4xl font-bold serif tracking-tight">{id ? 'Edit Manuscript' : 'New Circular'}</h1>
         </div>
-        <button onClick={save} className="bg-blue-600 text-white px-8 py-3 rounded-2xl font-bold flex items-center hover:bg-blue-700 transition-all shadow-xl shadow-blue-200">
-          <Save className="w-4 h-4 mr-2" /> Commit to Archive
+        <button onClick={save} className="bg-blue-600 text-white px-10 py-4 rounded-[1.5rem] font-bold flex items-center hover:bg-blue-700 transition-all shadow-xl shadow-blue-200">
+          <Save className="w-5 h-5 mr-3" /> Save to Archives
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-        <div className="lg:col-span-8 space-y-8">
-          <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        <div className="lg:col-span-8 space-y-10">
+          <div className="bg-white p-12 rounded-[3rem] border border-slate-100 shadow-sm space-y-10">
             <input 
-              className="w-full text-4xl font-bold serif outline-none border-none placeholder:text-slate-200 bg-transparent" 
-              placeholder="Article Heading..." 
+              className="w-full text-5xl font-bold serif outline-none border-none placeholder:text-slate-200 bg-transparent tracking-tight" 
+              placeholder="Headline..." 
               value={form.title} 
               onChange={e => setForm({...form, title: e.target.value})} 
             />
             
-            <div className="flex items-center justify-between border-b border-slate-50 pb-4">
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Primary Manuscript</span>
+            <div className="flex items-center justify-between border-b border-slate-50 pb-6">
+              <span className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400">Manuscript Body</span>
               <button 
                 onClick={generateWithAi} 
                 disabled={isAiLoading} 
-                className="text-xs font-bold text-blue-600 bg-blue-50 px-4 py-2 rounded-full flex items-center hover:bg-blue-100 transition-all disabled:opacity-50"
+                className="text-xs font-bold text-blue-600 bg-blue-50 px-5 py-2.5 rounded-full flex items-center hover:bg-blue-100 transition-all disabled:opacity-50"
               >
-                {isAiLoading ? <Loader2 className="w-3 h-3 mr-2 animate-spin" /> : <Sparkles className="w-3 h-3 mr-2" />} 
-                {isAiLoading ? 'Synthesizing...' : 'AI Metadata Assistant'}
+                {isAiLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />} 
+                {isAiLoading ? 'Synthesizing...' : 'AI Metadata Hub'}
               </button>
             </div>
 
             <textarea 
-              className="w-full min-h-[500px] outline-none border-none leading-relaxed font-light text-slate-700 text-xl resize-none bg-transparent" 
-              placeholder="Begin your academic narrative here. HTML tags supported for styling..." 
+              className="w-full min-h-[600px] outline-none border-none leading-relaxed font-light text-slate-700 text-xl resize-none bg-transparent" 
+              placeholder="Record your findings... HTML supported." 
               value={form.content} 
               onChange={e => setForm({...form, content: e.target.value})} 
             />
           </div>
 
-          <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4">
-            <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Abstract (Summary)</label>
+          <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-6">
+            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Executive Abstract</label>
             <textarea 
-              className="w-full p-6 bg-slate-50 border-none rounded-2xl outline-none text-sm text-slate-600 focus:ring-2 focus:ring-blue-100 min-h-[100px]" 
-              placeholder="A concise summary for the homepage feed..." 
+              className="w-full p-6 bg-slate-50 border-none rounded-2xl outline-none text-base text-slate-600 focus:ring-2 focus:ring-blue-100 min-h-[120px] font-light" 
+              placeholder="A concise summary..." 
               value={form.summary} 
               onChange={e => setForm({...form, summary: e.target.value})} 
             />
           </div>
         </div>
 
-        <div className="lg:col-span-4 space-y-8">
-          <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-8">
-            <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-slate-900 border-b border-slate-50 pb-4 flex items-center">
-              <SettingsIcon className="w-4 h-4 mr-3" /> Taxonomy
+        <div className="lg:col-span-4 space-y-10">
+          <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-10">
+            <h3 className="text-sm font-black uppercase tracking-[0.2em] text-slate-900 border-b border-slate-50 pb-6 flex items-center">
+              <SettingsIcon className="w-5 h-5 mr-4 text-blue-600" /> Taxonomy
             </h3>
             
-            <div className="space-y-6">
+            <div className="space-y-8">
               <div>
-                <label className="text-[10px] font-bold block mb-2 uppercase text-slate-400">Category</label>
+                <label className="text-[10px] font-black block mb-3 uppercase text-slate-400 tracking-widest">Discipline</label>
                 <select 
-                  className="w-full p-4 bg-slate-50 rounded-2xl outline-none text-sm border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-blue-100 transition-all" 
+                  className="w-full p-5 bg-slate-50 rounded-2xl outline-none text-sm border-none ring-1 ring-slate-100 focus:ring-4 focus:ring-blue-50 transition-all font-bold" 
                   value={form.category} 
                   onChange={e => setForm({...form, category: e.target.value})}
                 >
@@ -449,22 +448,22 @@ const PostEditor = () => {
               </div>
 
               <div>
-                <label className="text-[10px] font-bold block mb-2 uppercase text-slate-400">Publication Status</label>
+                <label className="text-[10px] font-black block mb-3 uppercase text-slate-400 tracking-widest">Visibility</label>
                 <select 
-                  className="w-full p-4 bg-slate-50 rounded-2xl outline-none text-sm border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-blue-100" 
+                  className="w-full p-5 bg-slate-50 rounded-2xl outline-none text-sm border-none ring-1 ring-slate-100 focus:ring-4 focus:ring-blue-50 transition-all font-bold" 
                   value={form.status} 
                   onChange={e => setForm({...form, status: e.target.value})}
                 >
-                  <option value="draft">Draft (Internal Only)</option>
-                  <option value="published">Published (Public View)</option>
+                  <option value="draft">Internal Draft</option>
+                  <option value="published">Public Bulletin</option>
                 </select>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                <span className="text-xs font-bold text-slate-600">Pin to Hero</span>
+              <div className="flex items-center justify-between p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
+                <span className="text-xs font-bold text-slate-600 uppercase tracking-widest">Feature in Hero</span>
                 <input 
                   type="checkbox" 
-                  className="w-5 h-5 rounded-lg text-blue-600 border-slate-200 focus:ring-blue-100"
+                  className="w-6 h-6 rounded-lg text-blue-600 border-slate-200 focus:ring-blue-600"
                   checked={form.featured} 
                   onChange={e => setForm({...form, featured: e.target.checked})} 
                 />
@@ -472,20 +471,20 @@ const PostEditor = () => {
             </div>
           </div>
 
-          <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-6">
-            <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-slate-900 border-b border-slate-50 pb-4 flex items-center">
-              <ImageIcon className="w-4 h-4 mr-3" /> Cover Image
+          <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-8">
+            <h3 className="text-sm font-black uppercase tracking-[0.2em] text-slate-900 border-b border-slate-50 pb-6 flex items-center">
+              <ImageIcon className="w-5 h-5 mr-4 text-emerald-600" /> Visual Proof
             </h3>
-            <div className="aspect-video bg-slate-50 rounded-3xl overflow-hidden border-2 border-dashed border-slate-200 flex items-center justify-center group relative">
+            <div className="aspect-video bg-slate-50 rounded-[2rem] overflow-hidden ring-1 ring-slate-100 flex items-center justify-center group relative shadow-inner">
               {form.image ? (
                 <img src={form.image} className="w-full h-full object-cover" />
               ) : (
-                <ImageIcon className="w-8 h-8 text-slate-200" />
+                <ImageIcon className="w-12 h-12 text-slate-200" />
               )}
             </div>
             <input 
-              className="w-full p-4 bg-slate-50 rounded-2xl outline-none text-[10px] font-mono border-none ring-1 ring-slate-100 focus:ring-2 focus:ring-blue-100" 
-              placeholder="Image URL..." 
+              className="w-full p-5 bg-slate-50 rounded-2xl outline-none text-[10px] font-mono border-none ring-1 ring-slate-100 focus:ring-4 focus:ring-blue-50" 
+              placeholder="URL..." 
               value={form.image} 
               onChange={e => setForm({...form, image: e.target.value})} 
             />
@@ -501,7 +500,7 @@ const AdminDashboard = () => {
   
   const stats = useMemo(() => [
     { label: 'Published Works', val: posts.filter((p: any) => p.status === 'published').length, icon: FileText, bg: 'bg-blue-50', text: 'text-blue-600' },
-    { label: 'Growth/Readers', val: subscribers.length, icon: User, bg: 'bg-emerald-50', text: 'text-emerald-600' },
+    { label: 'Active Readers', val: subscribers.length, icon: User, bg: 'bg-emerald-50', text: 'text-emerald-600' },
     { label: 'Drafts in Review', val: posts.filter((p: any) => p.status === 'draft').length, icon: Edit2, bg: 'bg-amber-50', text: 'text-amber-600' }
   ], [posts, subscribers]);
 
@@ -511,41 +510,41 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="space-y-12 animate-in fade-in duration-700">
+    <div className="space-y-16 animate-in fade-in duration-1000">
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-4xl font-bold serif mb-2">Editor's Console</h1>
-          <p className="text-slate-400 text-sm font-medium">Monitoring the AGHC Knowledge Feed.</p>
+          <h1 className="text-5xl font-bold serif mb-3 tracking-tight">Editor's Console</h1>
+          <p className="text-slate-400 text-base font-medium">System status for AGHC Knowledge Feed.</p>
         </div>
-        <Link to="/admin/posts/new" className="bg-blue-600 text-white px-8 py-4 rounded-[1.25rem] font-bold flex items-center hover:bg-blue-700 transition-all shadow-xl shadow-blue-100">
-          <Plus className="w-5 h-5 mr-2" /> New Entry
+        <Link to="/admin/posts/new" className="bg-blue-600 text-white px-10 py-5 rounded-[1.75rem] font-bold flex items-center hover:bg-blue-700 transition-all shadow-xl shadow-blue-100">
+          <Plus className="w-5 h-5 mr-3" /> New Circular
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
         {stats.map(s => (
-          <div key={s.label} className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:translate-y-[-4px] transition-all duration-500">
-            <div className={`${s.bg} ${s.text} w-14 h-14 rounded-2xl flex items-center justify-center mb-8 shadow-inner`}><s.icon className="w-7 h-7" /></div>
-            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-2">{s.label}</p>
-            <p className="text-4xl font-bold text-slate-900">{s.val}</p>
+          <div key={s.label} className="bg-white p-12 rounded-[3.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:translate-y-[-8px] transition-all duration-700">
+            <div className={`${s.bg} ${s.text} w-16 h-16 rounded-[1.5rem] flex items-center justify-center mb-10 shadow-inner`}><s.icon className="w-8 h-8" /></div>
+            <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.25em] mb-3">{s.label}</p>
+            <p className="text-5xl font-bold text-slate-900 tracking-tighter">{s.val}</p>
           </div>
         ))}
       </div>
 
-      <div className="bg-white p-12 rounded-[3rem] border border-slate-100 shadow-sm h-[450px]">
-        <h3 className="text-sm font-bold uppercase tracking-[0.2em] mb-10 text-slate-400 flex items-center">
-          <TrendingUp className="w-4 h-4 mr-3" /> Reader Engagement (Last 7 Days)
+      <div className="bg-white p-16 rounded-[4rem] border border-slate-100 shadow-sm h-[500px]">
+        <h3 className="text-[10px] font-black uppercase tracking-[0.25em] mb-12 text-slate-400 flex items-center">
+          <TrendingUp className="w-4 h-4 mr-4" /> Weekly Engagement Cycle
         </h3>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
-            <XAxis dataKey="n" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 600 }} />
-            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 600 }} />
+            <XAxis dataKey="n" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 700 }} />
+            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 700 }} />
             <Tooltip 
-              cursor={{ fill: '#f1f5f9', radius: 8 }}
-              contentStyle={{ border: 'none', borderRadius: '16px', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', fontWeight: 700 }} 
+              cursor={{ fill: '#f1f5f9', radius: 12 }}
+              contentStyle={{ border: 'none', borderRadius: '24px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.1)', fontWeight: 800, padding: '16px' }} 
             />
-            <Bar dataKey="v" fill="#3b82f6" radius={[8, 8, 8, 8]} barSize={40} />
+            <Bar dataKey="v" fill="#3b82f6" radius={[12, 12, 12, 12]} barSize={50} />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -557,61 +556,61 @@ const AdminPosts = () => {
   const { posts, deletePost } = useApp();
   
   return (
-    <div className="space-y-12 animate-in fade-in slide-in-from-right-4 duration-500">
+    <div className="space-y-16">
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-4xl font-bold serif mb-2">Manuscript Archive</h1>
-          <p className="text-slate-400 text-sm font-medium">Curating institutional knowledge.</p>
+          <h1 className="text-5xl font-bold serif mb-3 tracking-tight">Archives</h1>
+          <p className="text-slate-400 text-base font-medium">Curating institutional research.</p>
         </div>
-        <Link to="/admin/posts/new" className="bg-blue-600 text-white px-8 py-4 rounded-[1.25rem] font-bold flex items-center hover:bg-blue-700 shadow-xl shadow-blue-100">
-          <Plus className="w-5 h-5 mr-2" /> Compose
+        <Link to="/admin/posts/new" className="bg-blue-600 text-white px-10 py-5 rounded-[1.75rem] font-bold flex items-center hover:bg-blue-700 shadow-xl shadow-blue-100">
+          <Plus className="w-5 h-5 mr-3" /> Compose
         </Link>
       </div>
 
-      <div className="bg-white rounded-[3rem] border border-slate-100 overflow-hidden shadow-sm">
-        <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
-          <div className="relative max-w-sm w-full">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
-            <input className="w-full pl-12 pr-6 py-3 bg-white rounded-2xl border border-slate-100 outline-none text-sm placeholder:text-slate-300 focus:ring-2 focus:ring-blue-100 transition-all" placeholder="Search archives..." />
+      <div className="bg-white rounded-[4rem] border border-slate-100 overflow-hidden shadow-sm">
+        <div className="p-10 border-b border-slate-50 flex items-center justify-between bg-slate-50/20">
+          <div className="relative max-w-md w-full">
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+            <input className="w-full pl-16 pr-8 py-4 bg-white rounded-[1.75rem] border border-slate-100 outline-none text-sm font-medium placeholder:text-slate-300 focus:ring-4 focus:ring-blue-50 transition-all" placeholder="Search archive..." />
           </div>
-          <button className="flex items-center text-xs font-bold text-slate-400 hover:text-slate-900 transition-colors uppercase tracking-widest">
-            <Filter className="w-4 h-4 mr-2" /> Advanced Filter
+          <button className="flex items-center text-[10px] font-black text-slate-400 hover:text-slate-900 transition-colors uppercase tracking-[0.2em]">
+            <Filter className="w-4 h-4 mr-3" /> Advanced Taxonomy
           </button>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left">
-            <thead className="bg-slate-50 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+            <thead className="bg-slate-50 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100">
               <tr>
-                <th className="px-10 py-6">Publication Title</th>
-                <th className="px-10 py-6">Discipline</th>
-                <th className="px-10 py-6">Visibility</th>
-                <th className="px-10 py-6 text-right">Actions</th>
+                <th className="px-12 py-8">Manuscript Title</th>
+                <th className="px-12 py-8">Discipline</th>
+                <th className="px-12 py-8">Status</th>
+                <th className="px-12 py-8 text-right">Tools</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
               {posts.map((p: any) => (
-                <tr key={p.id} className="group hover:bg-slate-50/50 transition-all duration-300">
-                  <td className="px-10 py-8">
-                    <div className="flex items-center space-x-6">
-                      <img src={p.image} className="w-16 h-12 rounded-xl object-cover shadow-sm ring-1 ring-slate-100" />
+                <tr key={p.id} className="group hover:bg-slate-50/50 transition-all duration-500">
+                  <td className="px-12 py-10">
+                    <div className="flex items-center space-x-8">
+                      <img src={p.image} className="w-20 h-14 rounded-2xl object-cover shadow-sm ring-1 ring-slate-100" />
                       <div>
-                        <p className="font-bold text-slate-900 text-lg mb-1 leading-tight">{p.title}</p>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{p.author}</p>
+                        <p className="font-bold text-slate-900 text-xl mb-1 tracking-tight">{p.title}</p>
+                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">{p.author}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-10 py-8">
-                    <span className="px-4 py-1.5 bg-blue-50 text-blue-600 text-[10px] font-bold rounded-full uppercase tracking-widest">{p.category}</span>
+                  <td className="px-12 py-10">
+                    <span className="px-5 py-2 bg-blue-50 text-blue-600 text-[10px] font-black rounded-full uppercase tracking-widest ring-1 ring-blue-100">{p.category}</span>
                   </td>
-                  <td className="px-10 py-8">
-                    <span className={`flex items-center space-x-2 text-[10px] font-bold uppercase tracking-widest ${p.status === 'published' ? 'text-emerald-500' : 'text-amber-500'}`}>
-                      <div className={`w-2 h-2 rounded-full ${p.status === 'published' ? 'bg-emerald-500' : 'bg-amber-500'} animate-pulse`} />
+                  <td className="px-12 py-10">
+                    <span className={`flex items-center space-x-3 text-[10px] font-black uppercase tracking-widest ${p.status === 'published' ? 'text-emerald-500' : 'text-amber-500'}`}>
+                      <div className={`w-2.5 h-2.5 rounded-full ${p.status === 'published' ? 'bg-emerald-500' : 'bg-amber-500'} shadow-lg`} />
                       <span>{p.status}</span>
                     </span>
                   </td>
-                  <td className="px-10 py-8 text-right space-x-4">
-                    <Link to={`/admin/posts/edit/${p.id}`} className="inline-flex p-3 text-slate-400 hover:text-blue-600 hover:bg-white rounded-2xl transition-all shadow-sm shadow-transparent hover:shadow-slate-100"><Edit2 className="w-5 h-5" /></Link>
-                    <button onClick={() => deletePost(p.id)} className="p-3 text-slate-400 hover:text-red-600 hover:bg-white rounded-2xl transition-all shadow-sm shadow-transparent hover:shadow-red-50"><Trash2 className="w-5 h-5" /></button>
+                  <td className="px-12 py-10 text-right space-x-6">
+                    <Link to={`/admin/posts/edit/${p.id}`} className="inline-flex p-4 text-slate-400 hover:text-blue-600 hover:bg-white rounded-[1.25rem] transition-all shadow-sm shadow-transparent hover:shadow-slate-100"><Edit2 className="w-5 h-5" /></Link>
+                    <button onClick={() => deletePost(p.id)} className="p-4 text-slate-400 hover:text-red-600 hover:bg-white rounded-[1.25rem] transition-all shadow-sm shadow-transparent hover:shadow-red-50"><Trash2 className="w-5 h-5" /></button>
                   </td>
                 </tr>
               ))}
@@ -626,26 +625,26 @@ const AdminPosts = () => {
 const Newsletter = () => {
   const { subscribers } = useApp();
   return (
-    <div className="space-y-12 animate-in fade-in slide-in-from-left-4 duration-500">
-      <h1 className="text-4xl font-bold serif mb-2">Audience Ledger</h1>
-      <div className="bg-white p-12 rounded-[3rem] border border-slate-100 flex items-center space-x-8 shadow-sm">
-        <div className="w-20 h-20 bg-emerald-50 text-emerald-600 rounded-[2rem] flex items-center justify-center shadow-inner"><Mail className="w-10 h-10" /></div>
+    <div className="space-y-16">
+      <h1 className="text-5xl font-bold serif tracking-tight">Audience Ledger</h1>
+      <div className="bg-white p-16 rounded-[4rem] border border-slate-100 flex items-center space-x-10 shadow-sm">
+        <div className="w-24 h-24 bg-emerald-50 text-emerald-600 rounded-[2.5rem] flex items-center justify-center shadow-inner"><Mail className="w-12 h-12" /></div>
         <div>
-          <p className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-2">Active Subscribers</p>
-          <p className="text-5xl font-bold text-slate-900 tracking-tighter">{subscribers.length}</p>
+          <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.25em] mb-3">Enrolled Constituents</p>
+          <p className="text-6xl font-bold text-slate-900 tracking-tighter">{subscribers.length}</p>
         </div>
       </div>
-      <div className="bg-white rounded-[3rem] border border-slate-100 overflow-hidden shadow-sm">
+      <div className="bg-white rounded-[4rem] border border-slate-100 overflow-hidden shadow-sm">
         <table className="w-full text-left">
-          <thead className="bg-slate-50 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
-            <tr><th className="px-10 py-6">User Email</th><th className="px-10 py-6">Enrollment Date</th><th className="px-10 py-6 text-right">Revoke</th></tr>
+          <thead className="bg-slate-50 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 border-b border-slate-100">
+            <tr><th className="px-12 py-8">User Email</th><th className="px-12 py-8">Enrollment Date</th><th className="px-12 py-8 text-right">Revoke</th></tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
             {subscribers.map((s: any) => (
-              <tr key={s.id} className="hover:bg-slate-50/50 transition-colors">
-                <td className="px-10 py-8 text-sm font-bold text-slate-800">{s.email}</td>
-                <td className="px-10 py-8 text-xs font-medium text-slate-400">{new Date(s.date).toLocaleDateString()}</td>
-                <td className="px-10 py-8 text-right"><button className="text-slate-300 hover:text-red-600 p-2"><Trash2 className="w-5 h-5" /></button></td>
+              <tr key={s.id} className="hover:bg-slate-50/50 transition-colors duration-500">
+                <td className="px-12 py-10 text-lg font-bold text-slate-800">{s.email}</td>
+                <td className="px-12 py-10 text-xs font-bold text-slate-400 uppercase tracking-widest">{new Date(s.date).toLocaleDateString()}</td>
+                <td className="px-12 py-10 text-right"><button className="text-slate-300 hover:text-red-600 p-4 rounded-2xl hover:bg-white transition-all"><Trash2 className="w-5 h-5" /></button></td>
               </tr>
             ))}
           </tbody>
@@ -667,27 +666,27 @@ const Settings = () => {
   };
 
   return (
-    <div className="max-w-4xl space-y-12">
-      <h1 className="text-4xl font-bold serif mb-2">Platform Config</h1>
-      <div className="bg-white p-12 rounded-[3rem] border border-slate-100 space-y-12 shadow-sm">
-        <h3 className="text-xl font-bold flex items-center border-b border-slate-50 pb-6"><Palette className="w-6 h-6 mr-4 text-blue-600" /> Branding & Identity</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-          <div className="space-y-4">
-            <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Institutional Title</label>
-            <input type="text" value={form.siteTitle} onChange={e => setForm({...form, siteTitle: e.target.value})} className="w-full p-5 bg-slate-50 rounded-2xl outline-none ring-1 ring-slate-100 focus:ring-2 focus:ring-blue-100 transition-all font-bold" />
+    <div className="max-w-4xl space-y-16">
+      <h1 className="text-5xl font-bold serif tracking-tight">Platform Config</h1>
+      <div className="bg-white p-16 rounded-[4rem] border border-slate-100 space-y-16 shadow-sm">
+        <h3 className="text-2xl font-bold serif flex items-center border-b border-slate-50 pb-10"><Palette className="w-8 h-8 mr-6 text-blue-600" /> Visual Identity</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div className="space-y-6">
+            <label className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400">Heraldic Title</label>
+            <input type="text" value={form.siteTitle} onChange={e => setForm({...form, siteTitle: e.target.value})} className="w-full p-6 bg-slate-50 rounded-3xl outline-none ring-1 ring-slate-100 focus:ring-4 focus:ring-blue-50 transition-all font-bold text-lg" />
           </div>
-          <div className="space-y-4">
-            <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Heraldic Emoji</label>
-            <input type="text" value={form.logo} onChange={e => setForm({...form, logo: e.target.value})} className="w-full p-5 bg-slate-50 rounded-2xl outline-none ring-1 ring-slate-100 focus:ring-2 focus:ring-blue-100 transition-all text-center text-3xl" />
+          <div className="space-y-6">
+            <label className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400">Shield Icon</label>
+            <input type="text" value={form.logo} onChange={e => setForm({...form, logo: e.target.value})} className="w-full p-6 bg-slate-50 rounded-3xl outline-none ring-1 ring-slate-100 focus:ring-4 focus:ring-blue-50 transition-all text-center text-4xl" />
           </div>
-          <div className="md:col-span-2 space-y-4">
-            <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Mission Statement</label>
-            <textarea value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full p-5 bg-slate-50 rounded-2xl outline-none ring-1 ring-slate-100 focus:ring-2 focus:ring-blue-100 transition-all text-sm leading-relaxed" rows={3} />
+          <div className="md:col-span-2 space-y-6">
+            <label className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400">Institutional Mission</label>
+            <textarea value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full p-6 bg-slate-50 rounded-3xl outline-none ring-1 ring-slate-100 focus:ring-4 focus:ring-blue-50 transition-all text-lg leading-relaxed font-light" rows={4} />
           </div>
         </div>
-        <div className="flex items-center space-x-6 pt-6 border-t border-slate-50">
-          <button onClick={handleUpdate} className="bg-blue-600 text-white px-10 py-4 rounded-[1.25rem] font-bold shadow-xl shadow-blue-100 hover:bg-blue-700 transition-all">Propagate Changes</button>
-          {saved && <span className="text-emerald-600 text-sm font-bold animate-in fade-in zoom-in duration-300">Archive Updated Successfully</span>}
+        <div className="flex items-center space-x-10 pt-10 border-t border-slate-50">
+          <button onClick={handleUpdate} className="bg-blue-600 text-white px-12 py-5 rounded-[2rem] font-bold shadow-2xl shadow-blue-200 hover:bg-blue-700 transition-all hover:scale-105">Propagate System Update</button>
+          {saved && <span className="text-emerald-600 text-sm font-black uppercase tracking-widest animate-in fade-in zoom-in duration-500">Archives Synchronized</span>}
         </div>
       </div>
     </div>
@@ -698,40 +697,40 @@ const Login = () => {
   const [pass, setPass] = useState('');
   const { login, settings } = useApp();
   const navigate = useNavigate();
-  const handle = (e: React.FormEvent) => { e.preventDefault(); if (login(pass)) navigate('/admin'); else alert('Authentication Failed: Invalid Key'); };
+  const handle = (e: React.FormEvent) => { e.preventDefault(); if (login(pass)) navigate('/admin'); else alert('Access Denied: Invalid Authentication Protocol'); };
   
   return (
     <div className="min-h-[85vh] flex items-center justify-center p-6">
-      <div className="max-w-md w-full bg-white p-12 rounded-[4rem] shadow-2xl space-y-12 text-center border border-slate-50 relative overflow-hidden group">
-        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-600 to-indigo-600" />
-        <div className="text-[6rem] mb-4 drop-shadow-sm group-hover:scale-110 transition-transform duration-700">{settings.logo}</div>
+      <div className="max-w-lg w-full bg-white p-16 rounded-[4.5rem] shadow-2xl space-y-16 text-center border border-slate-50 relative overflow-hidden group">
+        <div className="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 animate-pulse" />
+        <div className="text-[7rem] mb-6 drop-shadow-2xl group-hover:scale-110 transition-transform duration-1000">{settings.logo}</div>
         <div>
-          <h1 className="text-3xl font-bold serif mb-3">Institutional Access</h1>
-          <p className="text-slate-400 text-sm font-medium">Verify credentials for administrative control.</p>
+          <h1 className="text-4xl font-bold serif mb-4 tracking-tight">Editor Access</h1>
+          <p className="text-slate-400 text-base font-medium">Verify credentials for administrative control.</p>
         </div>
-        <form onSubmit={handle} className="space-y-8">
+        <form onSubmit={handle} className="space-y-10">
           <div className="relative">
-            <Lock className="absolute left-6 top-6 text-slate-300 w-5 h-5" />
-            <input type="password" value={pass} onChange={e => setPass(e.target.value)} placeholder="Access Code (admin123)" className="w-full pl-16 pr-6 py-6 bg-slate-50 rounded-[2rem] outline-none ring-1 ring-slate-100 focus:ring-4 focus:ring-blue-100 transition-all font-mono" required />
+            <Lock className="absolute left-8 top-8 text-slate-300 w-6 h-6" />
+            <input type="password" value={pass} onChange={e => setPass(e.target.value)} placeholder="Entry Code (admin123)" className="w-full pl-20 pr-8 py-8 bg-slate-50 rounded-[2.5rem] outline-none ring-1 ring-slate-100 focus:ring-8 focus:ring-blue-50 transition-all font-mono text-xl tracking-tighter" required />
           </div>
-          <button className="w-full bg-slate-900 text-white py-6 rounded-[2rem] font-bold shadow-2xl flex items-center justify-center hover:bg-blue-600 transition-all hover:scale-[1.02] active:scale-[0.98]">
-            Authorize Session <ArrowRight className="ml-3 w-5 h-5" />
+          <button className="w-full bg-slate-900 text-white py-8 rounded-[2.5rem] font-black uppercase tracking-[0.2em] shadow-2xl flex items-center justify-center hover:bg-blue-600 transition-all hover:scale-[1.03] active:scale-[0.98]">
+            Authorize Hub Access <ArrowRight className="ml-5 w-6 h-6" />
           </button>
         </form>
-        <div className="flex items-center justify-center space-x-2 text-slate-300">
-           <ShieldCheck className="w-4 h-4" />
-           <span className="text-[10px] font-bold uppercase tracking-widest">End-to-End Encrypted Access</span>
+        <div className="flex items-center justify-center space-x-3 text-slate-300">
+           <ShieldCheck className="w-5 h-5" />
+           <span className="text-[10px] font-black uppercase tracking-[0.3em]">Encrypted Session Protocol</span>
         </div>
       </div>
     </div>
   );
 };
 
-// --- Layouts ---
+// --- LAYOUTS ---
 const PublicLayout = () => (
   <div className="min-h-screen flex flex-col">
     <Navbar />
-    <main className="flex-grow bg-[#fcfcfd]"><Outlet /></main>
+    <main className="flex-grow"><Outlet /></main>
     <Footer />
   </div>
 );
@@ -749,33 +748,33 @@ const AdminLayout = () => {
   ];
 
   return (
-    <div className="min-h-screen flex bg-slate-50">
-      <aside className="w-80 bg-slate-900 text-slate-400 flex flex-col sticky top-0 h-screen hidden md:flex p-10 border-r border-slate-800">
-        <div className="text-white text-2xl font-bold serif mb-16 flex items-center tracking-tight">
-           <span className="mr-3 text-3xl">📰</span> AGHC Hub
+    <div className="min-h-screen flex bg-[#f8fafc]">
+      <aside className="w-96 bg-slate-900 text-slate-400 flex flex-col sticky top-0 h-screen hidden md:flex p-12 border-r border-slate-800">
+        <div className="text-white text-3xl font-bold serif mb-20 flex items-center tracking-tight">
+           <span className="mr-5 text-4xl">📰</span> AGHC Hub
         </div>
-        <nav className="space-y-4 flex-grow">
+        <nav className="space-y-6 flex-grow">
           {menu.map(m => (
-            <Link key={m.p} to={m.p} className={`flex items-center px-6 py-5 rounded-[1.5rem] text-sm font-bold tracking-tight transition-all duration-300 ${location.pathname === m.p ? 'bg-blue-600 text-white shadow-[0_15px_30px_-5px_rgba(37,99,235,0.4)]' : 'hover:bg-slate-800/50 hover:text-white'}`}>
-              <m.i className="w-5 h-5 mr-4" /> {m.n}
+            <Link key={m.p} to={m.p} className={`flex items-center px-8 py-6 rounded-[2.25rem] text-sm font-black uppercase tracking-[0.2em] transition-all duration-500 ${location.pathname === m.p ? 'bg-blue-600 text-white shadow-[0_20px_40px_-10px_rgba(37,99,235,0.4)]' : 'hover:bg-slate-800/50 hover:text-white'}`}>
+              <m.i className="w-6 h-6 mr-5" /> {m.n}
             </Link>
           ))}
         </nav>
-        <div className="mt-auto pt-10 border-t border-slate-800 flex flex-col gap-6">
-          <Link to="/" className="text-xs font-bold uppercase tracking-widest hover:text-white flex items-center transition-colors">
-            <ExternalLink className="w-4 h-4 mr-3" /> Public Interface
+        <div className="mt-auto pt-12 border-t border-slate-800 flex flex-col gap-10">
+          <Link to="/" className="text-xs font-black uppercase tracking-[0.3em] hover:text-white flex items-center transition-colors">
+            <ExternalLink className="w-5 h-5 mr-4" /> Live Site
           </Link>
-          <button onClick={logout} className="text-left text-xs font-bold uppercase tracking-widest text-red-400 hover:text-red-300 flex items-center transition-colors">
-            <LogOut className="w-4 h-4 mr-3" /> Sever Session
+          <button onClick={logout} className="text-left text-xs font-black uppercase tracking-[0.3em] text-red-400 hover:text-red-300 flex items-center transition-colors">
+            <LogOut className="w-5 h-5 mr-4" /> Sever Session
           </button>
         </div>
       </aside>
-      <main className="flex-grow p-12 overflow-y-auto bg-[#f8fafc]"><div className="max-w-7xl mx-auto"><Outlet /></div></main>
+      <main className="flex-grow p-16 overflow-y-auto"><div className="max-w-6xl mx-auto"><Outlet /></div></main>
     </div>
   );
 };
 
-// --- App Root ---
+// --- APP ROOT ---
 const App = () => (
   <AppProvider>
     <Router>
@@ -785,17 +784,17 @@ const App = () => (
           <Route path="/post/:slug" element={<PostDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/about" element={
-            <div className="max-w-3xl mx-auto py-32 px-6 text-center animate-in fade-in slide-in-from-bottom-8 duration-1000">
-              <span className="bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-8 inline-block">Since 2012</span>
-              <h1 className="text-5xl md:text-6xl font-bold serif mb-10 leading-tight">Documenting the Pulse of AGHC</h1>
-              <div className="w-24 h-1 bg-blue-600 mx-auto mb-10 rounded-full" />
-              <p className="text-xl text-slate-500 leading-relaxed font-light mb-12">
-                The AGHC Newspaper Club is more than a reporting body; we are curators of institutional memory. Our mission is to bridge the gap between rigorous academic inquiry and student perspective, creating a definitive record of our college's evolution.
+            <div className="max-w-4xl mx-auto py-40 px-8 text-center animate-in fade-in duration-1000">
+              <span className="bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-[0.3em] px-6 py-3 rounded-full mb-12 inline-block">Since 2012</span>
+              <h1 className="text-6xl md:text-8xl font-bold serif mb-16 leading-tight tracking-tighter">Recording the Pulse of AGHC.</h1>
+              <div className="w-32 h-1.5 bg-blue-600 mx-auto mb-16 rounded-full" />
+              <p className="text-2xl text-slate-500 leading-relaxed font-light mb-20 max-w-2xl mx-auto">
+                The AGHC Newspaper Club is a student-led collective dedicated to multidisciplinary exploration and journalistic integrity. We curate institutional memory through rigorous inquiry.
               </p>
-              <div className="grid grid-cols-3 gap-8 max-w-lg mx-auto py-12 border-t border-slate-100">
-                <div><p className="text-3xl font-bold text-slate-900 serif">14</p><p className="text-[10px] font-bold uppercase text-slate-400 mt-2">Annual Volumes</p></div>
-                <div><p className="text-3xl font-bold text-slate-900 serif">500+</p><p className="text-[10px] font-bold uppercase text-slate-400 mt-2">Articles</p></div>
-                <div><p className="text-3xl font-bold text-slate-900 serif">12k</p><p className="text-[10px] font-bold uppercase text-slate-400 mt-2">Monthly Readers</p></div>
+              <div className="grid grid-cols-3 gap-16 max-w-3xl mx-auto py-20 border-t border-slate-100">
+                <div><p className="text-5xl font-bold text-slate-900 serif">14</p><p className="text-[10px] font-black uppercase text-slate-400 mt-4 tracking-widest">Volumes</p></div>
+                <div><p className="text-5xl font-bold text-slate-900 serif">650+</p><p className="text-[10px] font-black uppercase text-slate-400 mt-4 tracking-widest">Bulletins</p></div>
+                <div><p className="text-5xl font-bold text-slate-900 serif">14k</p><p className="text-[10px] font-black uppercase text-slate-400 mt-4 tracking-widest">Readers</p></div>
               </div>
             </div>
           } />
